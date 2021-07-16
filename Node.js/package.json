@@ -1,0 +1,38 @@
+{
+  "name": "node-gyp-offline-install",
+  "version": "1.0.0",
+  "description": "Node.js C++ Addon node-gyp offline install",
+  "main": "index.js",
+  "dependencies": {
+    "archiver": "^5.3.0",
+    "commander": "^8.0.0",
+    "node-fetch": "^2.6.1",
+    "tar": "^6.1.0",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start":"node index.js -m https://npm.taobao.org/mirrors/node/",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/itas109/node-gyp-offline-install.git"
+  },
+  "keywords": [
+    "node-gyp",
+    "node-gyp-install",
+    "node-gyp-offline-install",
+    "addon",
+    "c",
+    "c++",
+    "bindings",
+    "native"
+  ],
+  "author": "itas109",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/itas109/node-gyp-offline-install/issues"
+  },
+  "homepage": "https://github.com/itas109/node-gyp-offline-install#readme"
+}
