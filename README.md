@@ -26,9 +26,20 @@ Node.js C++插件node-gyp一键离线安装工具
 
 # Last Modify 最新版本
 
+## Version: 1.1.0
+
+by itas109 on 2022-02-28
+
 # Quick Start 快速开始
 
-# Screenshot 截图
+```
+$ git clone --depth=1 https://github.com/itas109/node-gyp-offline-install.git
+$ cd node-gyp-offline-install
+$ cd Node.js
+$ npm install
+$ node index.js -p win32 -a x64 -v 16.14.0 -m https://npm.taobao.org/mirrors/node/
+$ node index.js -p linux -a x64 -v 16.14.0 -m https://npm.taobao.org/mirrors/node/
+```
 
 # Contacting 联系方式
 
