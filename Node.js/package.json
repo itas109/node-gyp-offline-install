@@ -1,13 +1,12 @@
 {
   "name": "node-gyp-offline-install",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Node.js C++ Addon node-gyp offline install",
   "main": "index.js",
   "dependencies": {
     "archiver": "^5.3.0",
-    "commander": "^8.0.0",
-    "node-fetch": "^2.6.1",
-    "tar": "^6.1.0",
+    "commander": "^9.0.0",
+    "node-fetch": "^3.2.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {},
@@ -21,8 +20,11 @@
   },
   "keywords": [
     "node-gyp",
+	"cmake-js",
     "node-gyp-install",
     "node-gyp-offline-install",
+	"cmake-js-install",
+	"cmake-js-offline-install",
     "addon",
     "c",
     "c++",
