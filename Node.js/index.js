@@ -139,14 +139,14 @@ async function main() {
             // ├─node-gyp
             // ├─node-gyp.cmd
             // └─node-gyp.ps1
-            execSync(format('npm i node-gyp cmake-js -g --prefix ./%s/node-gyp-module/npm', DOWNLOAD_FOLDER_NAME), {cwd : CURRENT_PATH});
+            execSync(format('npm i node-gyp cmake-js node-addon-api -g --prefix ./%s/node-gyp-module/npm', DOWNLOAD_FOLDER_NAME), {cwd : CURRENT_PATH});
         } else if ('linux' === HOST_PLATFORM) {
             // TODO:not support
         } else {
         }
     } else if ('linux' === TARGET_PLATFORM) {
         if ('win32' === HOST_PLATFORM) {
-            execSync(format('npm i node-gyp cmake-js -g --prefix ./%s/node-gyp-module/lib', DOWNLOAD_FOLDER_NAME), {cwd : CURRENT_PATH});
+            execSync(format('npm i node-gyp cmake-js node-addon-api -g --prefix ./%s/node-gyp-module/lib', DOWNLOAD_FOLDER_NAME), {cwd : CURRENT_PATH});
             fs.rmSync(path.join(DOWNLOAD_PATH, 'node-gyp-module/lib/node-gyp'));
             fs.rmSync(path.join(DOWNLOAD_PATH, 'node-gyp-module/lib/node-gyp.cmd'));
             fs.rmSync(path.join(DOWNLOAD_PATH, 'node-gyp-module/lib/node-gyp.ps1'));
@@ -160,7 +160,7 @@ async function main() {
             // └── lib
             //     └── node_modules
             //         └── node-gyp
-            execSync(format('npm i node-gyp cmake-js -g --prefix ./%s/node-gyp-module', DOWNLOAD_FOLDER_NAME), {cwd : CURRENT_PATH});
+            execSync(format('npm i node-gyp cmake-js node-addon-api -g --prefix ./%s/node-gyp-module', DOWNLOAD_FOLDER_NAME), {cwd : CURRENT_PATH});
             fs.rmdirSync(path.join(DOWNLOAD_PATH, 'node-gyp-module/bin'), {recursive : true});
         } else {
         }
