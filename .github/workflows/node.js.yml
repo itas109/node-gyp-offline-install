@@ -1,0 +1,58 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Node.js CI
+
+on:
+#   push:
+#     branches: [ main ]
+#   pull_request:
+#     branches: [ main ]
+ schedule:
+   - cron: 0 6 1 * *
+ watch:
+   types: [started]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [12.x, 14.x, 16.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - name: System info
+      run: |
+           cat /proc/cpuinfo
+           cat /proc/meminfo
+           df -h
+           du -hd1
+          
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Download node-gyp
+      run: |
+           cd node-gyp-offline-install/Node.js
+           npm install
+           node index.js -p win32 -a x64 -alc 3
+           node index.js -p linux -a x64 -alc 3
+           find . -maxdepth 1 -type d -name "node-gyp-offline-install*" | xargs tar zcvf {}.tar.gz
+           mv node-gyp-offline-install*.tar.gz /opt
+          
+    - name: Upload Binaries to Release
+      uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+          repo_token: "${{ secrets.ACCESS_TOKEN }}"
+          automatic_release_tag: "AtuoBuild"
+          prerelease: false
+          title: "AtuoBuild"
+          files: |
+            /opt/node-gyp-offline-install*.tar.gz
