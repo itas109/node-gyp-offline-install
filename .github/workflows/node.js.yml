@@ -40,7 +40,8 @@ jobs:
            node index.js -p win32 -a x64 -alc 3
            node index.js -p linux -a x64 -alc 3
            find . -maxdepth 1 -type d -name "node-gyp-offline-install*" | xargs tar zcvf {}.tar.gz
-           mv node-gyp-offline-install*.tar.gz /opt
+           ls
+           cp -rf *.tar.gz /opt
           
     - name: Upload Binaries to Release
       uses: "marvinpinto/action-automatic-releases@latest"
@@ -50,4 +51,4 @@ jobs:
           prerelease: false
           title: "AtuoBuild"
           files: |
-            /opt/node-gyp-offline-install*.tar.gz
+            /opt/*.tar.gz
