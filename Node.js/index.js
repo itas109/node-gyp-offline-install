@@ -19,12 +19,14 @@ program
     .option('-p, --platform [value]', 'target platform, default current platform')
     .option('-a, --arch [value]', 'target arch, default current arch')
     .option('-v, --version [value]', 'target version, default current version')
+    .option('-alc, --autoLTSCount [value]', 'auto download last count lts, default 1') // -alc higher than -v 
     .option('-m, --mirror [value]', 'Node.js mirror, default taobao mirror');
 
 program.addHelpText('after', `
 
   Example call:
-    $ node index.js -p win32 -a x64 -v 16.14.0 -m https://npm.taobao.org/mirrors/node/`);
+    $ node index.js -p win32 -a x64 -v 16.14.0 -m https://npm.taobao.org/mirrors/node/
+    $ node index.js -p win32 -a x64 -alc 1 -m https://npm.taobao.org/mirrors/node/`);
 
 program.parse();
 
@@ -34,34 +36,55 @@ console.log('args', args);
 const HOST_PLATFORM = process.platform;
 const TARGET_PLATFORM = process.env.TARGET_PLATFORM || args.platform || HOST_PLATFORM;                                      // win32 linux
 const TARGET_ARCH = process.env.TARGET_ARCH || args.arch || process.arch;                                                   // x86 x64 armv7l arm64
-const TRARGET_VERSION = subVersion(process.env.TRARGET_VERSION) || subVersion(args.version) || subVersion(process.version); // 16.14.0
-const NODEJS_MIRROR = padURL(process.env.NODEJS_MIRROR) || padURL(args.mirror) || 'https://npm.taobao.org/mirrors/node/'; // https://nodejs.org/dist/
+let TRARGET_VERSION = subVersion(process.env.TRARGET_VERSION) || subVersion(args.version) || subVersion(process.version);   // 16.14.0
+const AUTO_LTS_COUNT = args.autoLTSCount;
+const NODEJS_MIRROR = padURL(process.env.NODEJS_MIRROR) || padURL(args.mirror) || 'https://npm.taobao.org/mirrors/node/';   // https://nodejs.org/dist/
 const NODEJS_ALL_INFO_URL = NODEJS_MIRROR + 'index.json';
 
 let configInfo = format('\nConfig Info\nPlatform: %s\nArch: %s\nVersion: %s\nMirror: %s\n',
                         TARGET_PLATFORM, TARGET_ARCH, TRARGET_VERSION, NODEJS_MIRROR);
 console.log(configInfo);
 
-const DOWNLOAD_FOLDER_NAME = format('node-gyp-offline-install-%s-%s-v%s', TARGET_PLATFORM, TARGET_ARCH, TRARGET_VERSION);
-const CURRENT_PATH = __dirname;
-const DOWNLOAD_PATH = path.join(CURRENT_PATH, DOWNLOAD_FOLDER_NAME);
+let CURRENT_PATH = __dirname;
+let DOWNLOAD_FOLDER_NAME = '';
+let DOWNLOAD_PATH = '';
 let NODE_GYP_CACHE_PATH = '';
 let CMAKE_JS_CACHE_PATH = '';
 let INSTALL_SHELL_FILE_NAME = '';
-if ('win32' === TARGET_PLATFORM) {
-    INSTALL_SHELL_FILE_NAME = 'node-gyp-offline-install.bat';
-    NODE_GYP_CACHE_PATH = path.join(DOWNLOAD_PATH, 'node-gyp', 'Cache');
-    CMAKE_JS_CACHE_PATH = path.join(DOWNLOAD_PATH, '.cmake-js');
-} else if ('linux' === TARGET_PLATFORM) {
-    INSTALL_SHELL_FILE_NAME = 'node-gyp-offline-install.sh';
-    NODE_GYP_CACHE_PATH = path.join(DOWNLOAD_PATH, 'node-gyp');
-    CMAKE_JS_CACHE_PATH = path.join(DOWNLOAD_PATH, '.cmake-js');
-} else {
+
+function setParam(){
+    console.log(format('Download Version %s\n', TRARGET_VERSION));
+    DOWNLOAD_FOLDER_NAME = format('node-gyp-offline-install-%s-%s-v%s', TARGET_PLATFORM, TARGET_ARCH, TRARGET_VERSION);
+    DOWNLOAD_PATH = path.join(CURRENT_PATH, DOWNLOAD_FOLDER_NAME);
+    if ('win32' === TARGET_PLATFORM) {
+        INSTALL_SHELL_FILE_NAME = 'node-gyp-offline-install.bat';
+        NODE_GYP_CACHE_PATH = path.join(DOWNLOAD_PATH, 'node-gyp', 'Cache');
+        CMAKE_JS_CACHE_PATH = path.join(DOWNLOAD_PATH, '.cmake-js');
+    } else if ('linux' === TARGET_PLATFORM) {
+        INSTALL_SHELL_FILE_NAME = 'node-gyp-offline-install.sh';
+        NODE_GYP_CACHE_PATH = path.join(DOWNLOAD_PATH, 'node-gyp');
+        CMAKE_JS_CACHE_PATH = path.join(DOWNLOAD_PATH, '.cmake-js');
+    } else {
+    }
 }
 
-main();
+(async () => {
+    if(AUTO_LTS_COUNT){
+        const response = await fetch(NODEJS_ALL_INFO_URL);
+        const nodeJSAllInfo = await response.json();
+        let nodeLTS = getNodeLTS(nodeJSAllInfo);
+        for(let i=0; i < AUTO_LTS_COUNT; i++){
+            TRARGET_VERSION = nodeLTS[i].version.substr(1); // remove char v
+            setParam();
+            await run();
+        }
+    }else{
+        setParam();
+        await run();
+    }
+})();
 
-async function main() {
+async function run() {
     if ('win32' === TARGET_PLATFORM && 'linux' === HOST_PLATFORM) {
         console.log('not support win32 on linux');
         return;
@@ -242,6 +265,41 @@ function getNodeLatestLTS(nodeJSAllInfo) {
     let nodeLatestLTS = nodeJSAllInfo[nodeLatestLTSIndex];
     // console.log(JSON.stringify(nodeLatestLTS));
     return nodeLatestLTS;
+}
+
+/**
+ * getNodeLatestMainVersion
+ * @param {string} nodeJSAllInfo
+ * @return [{json}]
+ */
+function getNodeLatestMainVersion(nodeJSAllInfo) {
+    let hash = {};
+    return nodeJSAllInfo.reduce(function (item, next) {
+        //{"version":"v16.14.0","date":"2022-02-08","lts":"Gallium"}
+        let version = next.version;
+        let versionArray = version.match(/v(\d*)\.(\d*)\.(\d*)$/);
+        if (null == versionArray || versionArray.length < 2) {
+            return item;
+        }
+        let mainVersion = versionArray[1];
+        // suppose version sort desc
+        if (null == hash[mainVersion]) {
+            hash[mainVersion] = version;
+            item.push(next);
+        }
+        return item;
+    }, [])
+}
+
+/**
+ * getNodeLTS
+ * @param {string} nodeJSAllInfo
+ * @return [{json}]
+ */
+function getNodeLTS(nodeJSAllInfo){
+    let latestMainVersion = getNodeLatestMainVersion(nodeJSAllInfo);
+
+    return _.filter(latestMainVersion, "lts");
 }
 
 /**
