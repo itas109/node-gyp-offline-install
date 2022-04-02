@@ -35,7 +35,9 @@ jobs:
     
     - name: Download node-gyp
       run: |
-           cd node-gyp-offline-install/Node.js
+           ls
+           cd node-gyp-offline-install
+           cd Node.js
            npm install
            node index.js -p win32 -a x64 -alc 3
            node index.js -p linux -a x64 -alc 3
