@@ -1,7 +1,7 @@
 # This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Node.js CI
+name: LastThreeLTS
 
 on:
 #   push:
@@ -35,8 +35,6 @@ jobs:
     
     - name: Download node-gyp
       run: |
-           ls
-           cd node-gyp-offline-install
            cd Node.js
            npm install
            node index.js -p win32 -a x64 -alc 3
