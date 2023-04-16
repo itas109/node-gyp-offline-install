@@ -46,7 +46,7 @@ jobs:
            cp -rf *.tar.gz /opt
           
     - name: Upload Binaries to Release
-      uses: "marvinpinto/action-automatic-releases@last"
+      uses: "marvinpinto/action-automatic-releases@latest"
       with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: AtuoBuild-$(date +%Y-%m-%d)
