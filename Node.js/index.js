@@ -20,7 +20,8 @@ program
     .option('-a, --arch [value]', 'target arch, default current arch')
     .option('-v, --version [value]', 'target version, default current version')
     .option('-alc, --autoLTSCount [value]', 'auto download last count lts, default 1') // -alc higher than -v 
-    .option('-m, --mirror [value]', 'Node.js mirror, default taobao mirror');
+    .option('-m, --mirror [value]', 'Node.js mirror, default taobao mirror')
+	.option('-nm, --npmMirror [value]', 'NPM mirror, default taobao mirror');
 
 program.addHelpText('after', `
 
@@ -38,7 +39,8 @@ const TARGET_PLATFORM = process.env.TARGET_PLATFORM || args.platform || HOST_PLA
 const TARGET_ARCH = process.env.TARGET_ARCH || args.arch || process.arch;                                                   // x86 x64 armv7l arm64
 let TRARGET_VERSION = subVersion(process.env.TRARGET_VERSION) || subVersion(args.version) || subVersion(process.version);   // 16.14.0
 const AUTO_LTS_COUNT = args.autoLTSCount;
-const NODEJS_MIRROR = padURL(process.env.NODEJS_MIRROR) || padURL(args.mirror) || 'https://npm.taobao.org/mirrors/node/';   // https://nodejs.org/dist/
+const NODEJS_MIRROR = padURL(process.env.NODEJS_MIRROR) || padURL(args.mirror) || 'https://npmmirror.com/mirrors/node/';   // https://nodejs.org/dist/
+const NPM_MIRROR = padURL(process.env.NPM_MIRROR) || padURL(args.npmMirror) || 'https://registry.npmmirror.com'
 const NODEJS_ALL_INFO_URL = NODEJS_MIRROR + 'index.json';
 
 let configInfo = format('\nConfig Info\nPlatform: %s\nArch: %s\nVersion: %s\nMirror: %s\n',
@@ -162,14 +164,14 @@ async function run() {
             // ├─node-gyp
             // ├─node-gyp.cmd
             // └─node-gyp.ps1
-            execSync(format('npm i node-gyp cmake-js node-addon-api -g --prefix ./%s/node-gyp-module/npm', DOWNLOAD_FOLDER_NAME), {cwd : CURRENT_PATH});
+            execSync(format('npm i node-gyp cmake-js node-addon-api -g --prefix ./%s/node-gyp-module/npm --registry=%s', DOWNLOAD_FOLDER_NAME, NPM_MIRROR), {cwd : CURRENT_PATH});
         } else if ('linux' === HOST_PLATFORM) {
             // TODO:not support
         } else {
         }
     } else if ('linux' === TARGET_PLATFORM) {
         if ('win32' === HOST_PLATFORM) {
-            execSync(format('npm i node-gyp cmake-js node-addon-api -g --prefix ./%s/node-gyp-module/lib', DOWNLOAD_FOLDER_NAME), {cwd : CURRENT_PATH});
+            execSync(format('npm i node-gyp cmake-js node-addon-api -g --prefix ./%s/node-gyp-module/lib --registry=%s', DOWNLOAD_FOLDER_NAME, NPM_MIRROR), {cwd : CURRENT_PATH});
             fs.rmSync(path.join(DOWNLOAD_PATH, 'node-gyp-module/lib/node-gyp'));
             fs.rmSync(path.join(DOWNLOAD_PATH, 'node-gyp-module/lib/node-gyp.cmd'));
             fs.rmSync(path.join(DOWNLOAD_PATH, 'node-gyp-module/lib/node-gyp.ps1'));
@@ -183,7 +185,7 @@ async function run() {
             // └── lib
             //     └── node_modules
             //         └── node-gyp
-            execSync(format('npm i node-gyp cmake-js node-addon-api -g --prefix ./%s/node-gyp-module', DOWNLOAD_FOLDER_NAME), {cwd : CURRENT_PATH});
+            execSync(format('npm i node-gyp cmake-js node-addon-api -g --prefix ./%s/node-gyp-module --registry=%s', DOWNLOAD_FOLDER_NAME, NPM_MIRROR), {cwd : CURRENT_PATH});
             fs.rmdirSync(path.join(DOWNLOAD_PATH, 'node-gyp-module/bin'), {recursive : true});
         } else {
         }
