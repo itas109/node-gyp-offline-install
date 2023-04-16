@@ -51,6 +51,6 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: AtuoBuild
           prerelease: false
-          title: AtuoBuild-$(date +%Y-%m-%d)
+          title: AtuoBuild
           files: |
             /opt/*.tar.gz
