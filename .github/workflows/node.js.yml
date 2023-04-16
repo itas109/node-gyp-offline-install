@@ -46,11 +46,11 @@ jobs:
            cp -rf *.tar.gz /opt
           
     - name: Upload Binaries to Release
-      uses: "marvinpinto/action-automatic-releases@v1.2.0"
+      uses: "marvinpinto/action-automatic-releases@last"
       with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "AtuoBuild"
+          automatic_release_tag: AtuoBuild-$(date +%Y-%m-%d)
           prerelease: false
-          title: "AtuoBuild-$(date +%Y-%m-%d)"
+          title: AtuoBuild-$(date +%Y-%m-%d)
           files: |
             /opt/*.tar.gz
