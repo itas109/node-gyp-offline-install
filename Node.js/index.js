@@ -16,18 +16,18 @@ const streamPipeline = promisify(pipeline);
 const program = new Command();
 program
     .description('Node.js C++ Addon node-gyp offline install')
-    .option('-p, --platform [value]', 'target platform, default current platform')
-    .option('-a, --arch [value]', 'target arch, default current arch')
+    .option('-p, --platform [value]', 'target platform(win32 linux), default current platform')
+    .option('-a, --arch [value]', 'target arch(x64 armv7l arm64), default current arch')
     .option('-v, --version [value]', 'target version, default current version')
     .option('-alc, --autoLTSCount [value]', 'auto download last count lts, default 1') // -alc higher than -v 
-    .option('-m, --mirror [value]', 'Node.js mirror, default taobao mirror')
-	.option('-nm, --npmMirror [value]', 'NPM mirror, default taobao mirror');
+    .option('-m, --mirror [value]', 'Node.js mirror, default npmmirror')
+	.option('-nm, --npmMirror [value]', 'NPM mirror, default npmmirror');
 
 program.addHelpText('after', `
 
   Example call:
-    $ node index.js -p win32 -a x64 -v 16.14.0 -m https://npm.taobao.org/mirrors/node/
-    $ node index.js -p win32 -a x64 -alc 1 -m https://npm.taobao.org/mirrors/node/`);
+    $ node index.js -p win32 -a x64 -v 16.14.0 -m https://npmmirror.com/mirrors/node/
+    $ node index.js -p linux -a x64 -alc 1 -m https://npmmirror.com/mirrors/node/`);
 
 program.parse();
 
@@ -201,7 +201,7 @@ async function run() {
     } else if ('linux' === TARGET_PLATFORM) {
         createLinuxInstallShell(path.join(path.join(DOWNLOAD_PATH, INSTALL_SHELL_FILE_NAME)), TRARGET_VERSION, TARGET_ARCH);
         // linux copy 7za
-        fs.copyFileSync(path.join(CURRENT_PATH, '7za'), path.join(DOWNLOAD_PATH, '7za'));
+        fs.copyFileSync(path.join(CURRENT_PATH, `7za_${TARGET_ARCH}`), path.join(DOWNLOAD_PATH, '7za'));
     } else {
     }
 
